@@ -45,7 +45,7 @@ await writeFile(paths[0], "arquivo de teste — Pulpo");
 await writeFile(paths[1], "second file");
 const sockets = [];
 const child = spawn(executable, [], {
-  env: { ...process.env, PULPO_DATA_HOME: home, PULPO_DEBUG_PORT: String(debugPort) },
+  env: { ...process.env, PULPO_DATA_HOME: home, PULPO_DEBUG_PORT: String(debugPort), PULPO_LOG_DRAGS: "1" },
   detached: true,
   stdio: ["ignore", "pipe", "pipe"],
 });

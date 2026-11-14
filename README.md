@@ -202,7 +202,8 @@ workflows also support **Run workflow** in Actions.
 
 ### macOS builds and validation
 
-The **Build macOS** workflow also runs on pull requests and manual runs. They build versioned `.app` bundles and `.dmg` installers
+The **Build macOS** workflow also runs on pull requests and manual runs. It
+builds versioned `.app` bundles and `.dmg` installers
 using CEF/Chromium and the same Brave blocker as Linux. Installers are available
 as `macos-installers-*` workflow artifacts and, for releases, on the release
 page alongside Linux and Windows. The minimum configured macOS version is 13;

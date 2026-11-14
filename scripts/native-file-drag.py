@@ -34,6 +34,8 @@ xt.XTestFakeButtonEvent.argtypes = [Display, C.c_uint, C.c_int, C.c_ulong]
 
 result = 1
 source_title = f"Pulpo file source {os.getpid()}"
+finished = threading.Event()
+drag_succeeded = False
 
 
 def find(display, parent, title):
@@ -101,7 +103,10 @@ def drag(app):
         time.sleep(0.3)
         xt.XTestFakeButtonEvent(display, 1, 0, 0)
         x.XFlush(display)
-        time.sleep(0.5)
+        # Keep the selection owner alive until XDND finishes transferring files.
+        # A fixed sleep can destroy the source before the target reads its data.
+        assert finished.wait(15), "GTK drag did not finish"
+        assert drag_succeeded, "GTK target rejected the file drop"
         result = 0
     except Exception as error:
         print(f"Native drag failed: {error}", file=sys.stderr)
@@ -113,13 +118,27 @@ def drag(app):
         GLib.idle_add(app.quit)
 
 
+def drag_end(_source, _drag, _delete_data):
+    global drag_succeeded
+    if not finished.is_set():
+        drag_succeeded = True
+    print("GTK drag finished", flush=True)
+    finished.set()
+
+
+def drag_cancel(_source, _drag, reason):
+    print(f"GTK drag cancelled: {reason}", flush=True)
+    finished.set()
+
+
 def activate(app):
     window = Gtk.ApplicationWindow(application=app, title=source_title)
     window.set_default_size(240, 100)
     window.set_child(Gtk.Label(label="Drag test files"))
     controller = Gtk.DragSource(actions=Gdk.DragAction.COPY)
     controller.connect("drag-begin", lambda *_: print("GTK drag started", flush=True))
-    controller.connect("drag-cancel", lambda _source, _drag, reason: print(f"GTK drag cancelled: {reason}", flush=True))
+    controller.connect("drag-cancel", drag_cancel)
+    controller.connect("drag-end", drag_end)
     files = Gdk.FileList.new_from_list([Gio.File.new_for_path(path) for path in sys.argv[1:]])
     controller.set_content(Gdk.ContentProvider.new_for_value(files))
     window.add_controller(controller)

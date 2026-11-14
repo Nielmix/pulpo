@@ -322,4 +322,3 @@ jobs:
       - name: Upload to release
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         run: bash scripts/publish-release.sh *.AppImage
-
