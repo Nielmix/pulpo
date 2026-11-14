@@ -122,6 +122,11 @@ try {
   assert.ok(shellTarget, "local shell target");
   const shell = await connect(shellTarget);
   await until(() => shell.evaluate("Boolean(document.querySelector('.service[data-id=one]'))"), "sidebar ready");
+  // The fixture has services.json, so startup treats it as an existing install
+  // and opens What's new asynchronously. Wait for and dismiss it before
+  // selecting a service; otherwise it can cover that service during the drag.
+  await until(() => shell.evaluate("!document.querySelector('#overlay').hidden && !document.querySelector('#whatsnew-view').hidden"), "startup What's new dialog");
+  await shell.evaluate("document.querySelector('#whatsnew-view [data-close]').click()");
   await shell.evaluate("document.querySelector('.service[data-id=one]').click()");
   await delay(500);
   for (const type of ["dragEnter", "dragOver", "drop"]) {
