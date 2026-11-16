@@ -3145,6 +3145,19 @@ autohideBox.addEventListener("change", () => {
 });
 showAutohide(await invoke<boolean>("sidebar_autohide"));
 
+// Fondo de la barra lateral: transparente (por defecto) o sólido.
+const SB_SOLID_KEY = "pulpo.sidebarSolid";
+const sbTransparentBox = $<HTMLInputElement>("#sb-transparent");
+function showSidebarTransparent(transparent: boolean) {
+  sbTransparentBox.checked = transparent;
+  document.body.classList.toggle("sb-solid", !transparent);
+}
+sbTransparentBox.addEventListener("change", () => {
+  localStorage.setItem(SB_SOLID_KEY, String(!sbTransparentBox.checked));
+  showSidebarTransparent(sbTransparentBox.checked);
+});
+showSidebarTransparent(localStorage.getItem(SB_SOLID_KEY) !== "true");
+
 $("#whatsnew-open").addEventListener("click", () => {
   returnTo = "manage";
   showWhatsNew(null);

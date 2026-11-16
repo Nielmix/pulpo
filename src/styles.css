@@ -113,6 +113,12 @@ body.sb-autohide:not(.in-app).sb-open #sidebar {
   transform: translateX(0);
 }
 
+/* Opción "fondo transparente" desactivada. !important: gana a las reglas de
+   auto-hide y de fondo de pantalla, que la dejan transparente. */
+body.sb-solid #sidebar {
+  background: var(--bg) !important;
+}
+
 body.sb-autohide:not(.in-app) #overlay {
   border-left: 0;
 }
@@ -1914,6 +1920,12 @@ body.has-wallpaper #home-date {
   padding: 24px 32px 0;
   overflow: hidden;
   background: var(--bg);
+}
+
+/* Con fondo de pantalla la barra lateral flota encima (position: fixed) y
+   esta página ignora el padding de #overlay (inset: 0): deja su hueco. */
+body.has-wallpaper:not(.sb-autohide) #wallpaper-view {
+  padding-left: 88px;
 }
 
 #wallpaper-view[hidden] {
