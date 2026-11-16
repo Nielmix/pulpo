@@ -1757,18 +1757,24 @@ fn apply_layout(app: &AppHandle) {
     let state = app.state::<AppState>();
     let overlay = state.overlay.load(Ordering::SeqCst);
     // Fija: las apps empiezan siempre a su derecha.
-    let sidebar_open =
-        state.sidebar_open.load(Ordering::SeqCst) || state.settings.lock().unwrap().sidebar_pinned;
+    let pinned = state.settings.lock().unwrap().sidebar_pinned;
+    let sidebar_open = state.sidebar_open.load(Ordering::SeqCst) || pinned;
     // La barra lateral crece con el zoom, como su contenido.
     let sidebar = (SIDEBAR_WIDTH * *state.zoom.lock().unwrap()).round();
     if let Some(shell) = app.get_webview("shell") {
         let width = if overlay { size.width } else { sidebar };
         let _ = shell.set_size(LogicalSize::new(width, size.height));
     }
-    // Las apps conservan siempre el ancho completo de la ventana: al revelar la
-    // barra lateral solo deslizan en `x` (cero eventos `resize`, sin piscada).
-    let content = LogicalSize::new(size.width.max(1.0), size.height);
+    // Con auto-hide las apps conservan el ancho completo de la ventana: al
+    // revelar la barra lateral solo deslizan en `x` (cero eventos `resize`, sin
+    // piscada). Con la barra fija ocupan solo el espacio a su derecha, si no la
+    // parte derecha de la app queda fuera de la ventana.
     let app_x = if sidebar_open { sidebar } else { 0.0 };
+    let app_width = if pinned {
+        size.width - sidebar
+    } else {
+        size.width
+    };
     let ids: Vec<String> = state
         .services
         .lock()
@@ -1786,12 +1792,12 @@ fn apply_layout(app: &AppHandle) {
         };
         let place = placement(app, &id);
         // Las ocultas conservan el tamaño completo: no se re-maquetan al volver.
-        let (x, y, height) = match place {
-            Placement::HomePane => (0.0, top, (size.height - top).max(1.0)),
-            Placement::Full | Placement::Hidden => (app_x, 0.0, size.height),
+        let (x, y, width, height) = match place {
+            Placement::HomePane => (0.0, top, size.width, (size.height - top).max(1.0)),
+            Placement::Full | Placement::Hidden => (app_x, 0.0, app_width, size.height),
         };
         let _ = webview.set_position(LogicalPosition::new(x, y));
-        let _ = webview.set_size(LogicalSize::new(content.width, height));
+        let _ = webview.set_size(LogicalSize::new(width.max(1.0), height));
         let _ = if place == Placement::Hidden {
             webview.hide()
         } else {
