@@ -36,7 +36,7 @@ Every user-visible change that will ship must be added to `src/whatsnew.ts` (en/
 ## Architecture
 
 **One window, many child webviews.** `src-tauri/src/lib.rs` creates window `main` and adds child webviews (Tauri `unstable` feature, `Window::add_child`):
-- `shell` — the local frontend (`index.html` + `src/main.ts`): the 64px sidebar, home page and all dialogs. Only this webview has IPC (`capabilities/default.json`).
+- `shell` — the local frontend (`index.html` + `src/main.ts`): the 56px sidebar, home page and all dialogs. Only this webview has IPC (`capabilities/default.json`).
 - One webview per enabled service, labelled with the service `id`, each with its own profile dir (Linux: `<data>/cef/Profile-<id>`, must be a direct child of the CEF root cache path; Windows: `<data>/profiles/<id>`).
 `layout()` positions/shows/hides all webviews from `AppState` (active service, `overlay`, zoom) via `placement()`: the active service full size, the `home_app` service's own webview (not a copy) in the bottom part of the home page (`home_pane` fraction in `settings.json`), the rest hidden at full size. When a dialog or the home page is open, the shell sets `overlay` and is stretched to full window width, covering the services. Almost every state change ends in `layout()`, which only queues a pass: a single `layout_worker` thread applies them in order, coalescing bursts (concurrent passes used to interleave show/hide). Never wait for a pass from the main thread; `request_layout(app, Some(id))` focuses a webview after the pass.
 

@@ -88,7 +88,7 @@ body:not(.sb-autohide) #sb-edge {
 }
 
 #sidebar {
-  width: 64px;
+  width: 56px;
   flex: none;
   display: flex;
   flex-direction: column;
@@ -127,15 +127,16 @@ body.sb-autohide:not(.in-app) #overlay {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: none;
   scroll-behavior: smooth;
   mask-image: linear-gradient(to bottom, transparent 0, #000 8px, #000 calc(100% - 8px), transparent 100%);
-  /* Espacio para el contador y el anillo del activo. */
-  padding: 6px 8px;
+  /* Espacio para el contador y el anillo del activo: el de arriba queda
+     fuera del degradado de la máscara (8px), si no se corta. */
+  padding: 10px 6px 6px;
   margin: -6px 0;
 }
 
@@ -200,6 +201,33 @@ body.sb-autohide:not(.in-app) #overlay {
   pointer-events: none;
 }
 
+#services .service {
+  width: 34px;
+  height: 34px;
+  padding: 6px;
+  border-radius: 10px;
+}
+
+#services .service img {
+  width: 22px;
+  height: 22px;
+}
+
+#services .service.letter {
+  font-size: 14px;
+}
+
+#services .service .badge {
+  top: -5px;
+  right: -5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  font-size: 10px;
+  line-height: 16px;
+}
+
 .service.letter {
   background: var(--color);
   color: #fff;
@@ -221,8 +249,10 @@ body.sb-autohide:not(.in-app) #overlay {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--active) 60%, transparent);
 }
 
+/* App desactivada: gris y tenue, en la barra lateral y en la página inicial. */
 .service.disabled {
-  opacity: 0.85;
+  opacity: 0.3;
+  filter: grayscale(1);
 }
 
 .service.dragging,
@@ -259,8 +289,8 @@ body.sb-autohide:not(.in-app) #overlay {
   flex: none;
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border: 1px dashed var(--line);
   border-radius: 12px;
@@ -1303,7 +1333,8 @@ label.check small {
 
 .home-app.disabled .home-icon,
 .home-app.disabled .home-name {
-  opacity: 0.9;
+  opacity: 0.4;
+  filter: grayscale(1);
 }
 
 .home-name {
@@ -1411,7 +1442,7 @@ body.split #overlay.home-mode {
 #pane-handle {
   display: none;
   position: fixed;
-  left: 64px;
+  left: 56px;
   right: 0;
   top: calc(100% * (1 - var(--pane, 0.5)) - 14px);
   height: 14px;
@@ -1866,7 +1897,7 @@ body.has-wallpaper:has(#overlay:not([hidden])) #sidebar {
 
 body.has-wallpaper #overlay {
   border-left: 0;
-  padding-left: 88px;
+  padding-left: 80px;
 }
 
 body.has-wallpaper #overlay.home-mode {
@@ -1925,7 +1956,7 @@ body.has-wallpaper #home-date {
 /* Con fondo de pantalla la barra lateral flota encima (position: fixed) y
    esta página ignora el padding de #overlay (inset: 0): deja su hueco. */
 body.has-wallpaper:not(.sb-autohide) #wallpaper-view {
-  padding-left: 88px;
+  padding-left: 80px;
 }
 
 #wallpaper-view[hidden] {
@@ -2108,7 +2139,7 @@ body.has-wallpaper:not(.sb-autohide) #wallpaper-view {
   transform: translate(-50%, 0);
 }
 
-/* Fijo al viewport, después de la barra lateral de 64px. */
+/* Fijo al viewport, después de la barra lateral de 56px. */
 #music-player {
   /* Contraste constante sobre capas claras e escuras, em ambos os temas. */
   --fg: #f5f5f7;
@@ -2524,7 +2555,7 @@ body.has-wallpaper:not(.sb-autohide) #wallpaper-view {
 body.in-app #home-dock,
 body.sb-open #home-dock,
 body:not(.sb-autohide) #home-dock {
-  left: 80px;
+  left: 72px;
 }
 
 #home-dock>* {

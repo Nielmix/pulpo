@@ -14,6 +14,29 @@ export interface WhatsNewEntry {
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    id: "2026-11-17",
+    items: {
+      en: [
+        "New option in Manage apps: transparent or solid sidebar background.",
+        "With the sidebar pinned, apps and the wallpaper page are no longer cut off or covered by it.",
+        "Disabled apps look grey again, in the sidebar and on the home page.",
+        "Slimmer sidebar with smaller app icons; the first app's unread counter is no longer cut off.",
+      ],
+      es: [
+        "Nueva opción en Administrar apps: fondo de la barra lateral transparente o sólido.",
+        "Con la barra lateral fija, las apps y la página del fondo de pantalla ya no quedan cortadas ni tapadas por ella.",
+        "Las apps desactivadas vuelven a verse en gris, en la barra lateral y en la página inicial.",
+        "Barra lateral más estrecha y con iconos más pequeños; el contador de la primera app ya no se corta.",
+      ],
+      pt: [
+        "Nova opção em Gerenciar apps: fundo da barra lateral transparente ou sólido.",
+        "Com a barra lateral fixa, os apps e a página do papel de parede não ficam mais cortados nem cobertos por ela.",
+        "Apps desativados voltam a aparecer em cinza, na barra lateral e na página inicial.",
+        "Barra lateral mais estreita e com ícones menores; o contador do primeiro app não fica mais cortado.",
+      ],
+    },
+  },
+  {
     id: "2026-11-12",
     items: {
       en: [

@@ -45,7 +45,7 @@ use tauri_plugin_opener::OpenerExt;
 use services::{Dnd, DndSchedule, IconSource, Preset, Service, Theme};
 
 /// Ancho de la barra lateral (webview "shell"), en píxeles lógicos.
-const SIDEBAR_WIDTH: f64 = 64.0;
+const SIDEBAR_WIDTH: f64 = 56.0;
 
 struct AppState {
     config_path: PathBuf,
