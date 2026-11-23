@@ -229,9 +229,6 @@ pub fn script() -> String {
       constructor(title, options) {{
         super(title, options);
         this.addEventListener("click", () => signal("notification"));
-        if (!lastBadge) {{
-          badge(1);
-        }}
       }}
     }};
   }}

@@ -2011,12 +2011,22 @@ await listen<Service[]>("services-changed", (e) => {
 await listen<{ id: string; count: number }>("badge", ({ payload }) => {
   badges.set(payload.id, payload.count);
   syncAppBadge();
+  const count = payload.count > 0 ? String(payload.count) : "";
   // El contador de un grupo plegado suma los de sus apps.
   const group = services.find((s) => s.id === payload.id)?.group;
-  if (group && collapsed.has(group)) return renderSidebar();
-  const badge = nav.querySelector(`.service[data-id="${CSS.escape(payload.id)}"] .badge`);
-  if (badge) badge.textContent = payload.count > 0 ? String(payload.count) : "";
-  if (!overlay.hidden && currentView() === "home") renderHome();
+  if (group && collapsed.has(group)) {
+    renderSidebar();
+  } else {
+    const badge = nav.querySelector(`.service[data-id="${CSS.escape(payload.id)}"] .badge`);
+    if (badge) badge.textContent = count;
+  }
+  if (overlay.hidden) return;
+  if (currentView() === "home") renderHome();
+  if (currentView() === "switcher") {
+    const index = switcherItems.findIndex((s) => s.id === payload.id);
+    const badge = switcher.list.children[index]?.querySelector(".switcher-badge");
+    if (badge) badge.textContent = count;
+  }
 });
 await listen<string[]>("dnd-changed", ({ payload }) => {
   dndActive = new Set(payload);
