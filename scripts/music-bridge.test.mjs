@@ -25,7 +25,7 @@ function harness(origin = "https://music.youtube.com") {
   const document = new EventTarget();
   Object.assign(document, {
     readyState: "complete", documentElement: {},
-    querySelector(selector) { return selector === "video" ? video : selector === "ytmusic-player-bar" ? bar : null; },
+    querySelector(selector) { return selector === "video:not([loop]), audio:not([loop])" ? video : selector === "ytmusic-player-bar" ? bar : null; },
   });
   Object.defineProperty(document, "title", {
     get: () => title,
@@ -35,7 +35,7 @@ function harness(origin = "https://music.youtube.com") {
   const window = {};
   window.top = window;
   const context = vm.createContext({
-    window, document, location: { origin }, navigator: { mediaSession: { metadata } },
+    window, document, HTMLMediaElement: class {}, location: { origin }, navigator: { mediaSession: { metadata } },
     queueMicrotask: (fn) => fn(),
     setTimeout(fn) { const id = ++timerId; timers.set(id, fn); return id; },
     clearTimeout(id) { timers.delete(id); },
@@ -136,4 +136,25 @@ test("progress synchronizes at most every five seconds and seeks publish immedia
   h.video.duration = Infinity;
   h.window.__pulpoMusic.control("seek", 50); h.flush();
   assert.equal(h.video.currentTime, 240, "live streams cannot be seeked by this control");
+});
+
+test("confirms only the YouTube Music idle dialog, even with the mini player disabled", () => {
+  const h = harness();
+  const spotify = harness("https://open.spotify.com");
+  h.install(false, "MARK:");
+  h.install(false, "MARK:");
+  spotify.install(false, "MARK:");
+
+  let clicks = 0;
+  const open = (document, nodeName) => {
+    const event = new Event("yt-popup-opened");
+    event.detail = { nodeName, querySelector: () => ({ click() { clicks++; } }) };
+    document.dispatchEvent(event);
+  };
+
+  open(h.document, "YT-CONFIRM-DIALOG-RENDERER");
+  open(spotify.document, "YTMUSIC-YOU-THERE-RENDERER");
+  assert.equal(clicks, 0);
+  open(h.document, "YTMUSIC-YOU-THERE-RENDERER");
+  assert.equal(clicks, 1);
 });

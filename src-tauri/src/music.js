@@ -26,6 +26,20 @@
   };
   const site = sites[location.origin];
   if (!site) return;
+  // El aviso de inactividad también aparece con el mini reproductor desactivado.
+  if (location.origin === "https://music.youtube.com" && !window.__pulpoMusicIdlePrompt) {
+    window.__pulpoMusicIdlePrompt = true;
+    document.addEventListener("yt-popup-opened", (event) => {
+      if (event.detail?.nodeName !== "YTMUSIC-YOU-THERE-RENDERER") return;
+      const dialog = typeof event.detail.querySelector === "function"
+        ? event.detail
+        : document.querySelector("ytmusic-popup-container ytmusic-you-there-renderer");
+      const confirm = (dialog?.shadowRoot ?? dialog)?.querySelector(
+        "#button button, #action-button button, yt-button-shape button, #button, #action-button"
+      );
+      confirm?.click();
+    });
+  }
   // Los ganchos se instalan una sola vez y antes que la página, aunque el
   // reproductor esté apagado: Spotify registra sus acciones de Media Session al
   // cargar y su elemento de audio no está en el documento.
