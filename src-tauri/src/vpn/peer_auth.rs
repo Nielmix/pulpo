@@ -3,12 +3,18 @@
 //! possam usar o proxy em `127.0.0.1`, sem quebrar o `ProxyResolvingClientSocket`
 //! do WebRTC (que não suporta `407 Proxy-Authorization`).
 
-use std::collections::{HashMap, HashSet};
+#[cfg(any(windows, target_os = "linux", test))]
+use std::collections::HashMap;
+#[cfg(windows)]
+use std::collections::HashSet;
 use std::net::SocketAddr;
+#[cfg(windows)]
 use std::sync::{Mutex, OnceLock};
 
+#[cfg(any(windows, target_os = "linux", test))]
 const MAX_TREE_DEPTH: usize = 8;
 
+#[cfg(windows)]
 fn extra_allowed_roots() -> &'static Mutex<HashSet<u32>> {
     static ROOTS: OnceLock<Mutex<HashSet<u32>>> = OnceLock::new();
     ROOTS.get_or_init(|| Mutex::new(HashSet::new()))
@@ -16,12 +22,14 @@ fn extra_allowed_roots() -> &'static Mutex<HashSet<u32>> {
 
 /// Registra um PID raiz adicional pertencente ao Pulpo (ex.: `BrowserProcessId`
 /// de um WebView2) caso o SO tenha criado o processo fora da árvore direta.
+#[cfg(windows)]
 pub fn register_allowed_root_pid(pid: u32) {
     if pid != 0 {
         extra_allowed_roots().lock().unwrap().insert(pid);
     }
 }
 
+#[cfg(windows)]
 fn allowed_roots() -> Vec<u32> {
     let mut roots = vec![std::process::id()];
     if let Ok(guard) = extra_allowed_roots().lock() {
@@ -32,6 +40,7 @@ fn allowed_roots() -> Vec<u32> {
 
 /// Verifica se `pid` pertence à árvore de qualquer um dos `roots`, subindo pelos
 /// pais em `parent_map` com limite de profundidade e proteção contra ciclos.
+#[cfg(any(windows, target_os = "linux", test))]
 pub(crate) fn is_pid_in_any_tree(pid: u32, roots: &[u32], parent_map: &HashMap<u32, u32>) -> bool {
     if pid == 0 {
         return false;
@@ -213,7 +222,7 @@ mod platform {
     use std::fs;
     use std::net::{IpAddr, SocketAddr};
 
-    use super::{allowed_roots, is_pid_in_any_tree};
+    use super::is_pid_in_any_tree;
 
     fn lookup_loopback_inode(peer_port: u16, local_port: u16) -> Option<String> {
         let content = fs::read_to_string("/proc/net/tcp").ok()?;
@@ -282,9 +291,9 @@ mod platform {
         let Some(socket_link) = lookup_loopback_inode(peer.port(), local_port) else {
             return false;
         };
-        let roots = allowed_roots();
+        let roots = [std::process::id()];
         let parents = read_parent_pids();
-        for (&pid, _) in &parents {
+        for &pid in parents.keys() {
             if is_pid_in_any_tree(pid, &roots, &parents) && pid_owns_socket(pid, &socket_link) {
                 return true;
             }

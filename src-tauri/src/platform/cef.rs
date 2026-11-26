@@ -114,8 +114,8 @@ fn set_proxy(webview: &Webview, vpn_proxy: Option<&str>) -> Result<(), String> {
             }
             let _done = Done(tx);
             use tauri_runtime_cef::cef::{
-                self, CefString, ImplDictionaryValue, ImplPreferenceManager, ImplRequestContext,
-                ImplValue,
+                self, CefString, ImplBrowser, ImplBrowserHost, ImplDictionaryValue,
+                ImplPreferenceManager, ImplValue,
             };
             let Some(host) = handle.browser().host() else {
                 return;
